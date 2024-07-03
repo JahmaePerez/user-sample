@@ -1,11 +1,12 @@
 "use client";
+// pages/edit/[id].js
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/router";
+import { fetchData } from "../../utils/data"; 
 import { UseDataContext } from "../../context/data";
-import { useRouter } from "next/navigation";
 
-const EditPage = () => {
+const EditPage = ({ initialData }) => {
   const router = useRouter();
   const { data, handleSubmitEdit } = UseDataContext();
   const [details, setDetails] = useState({
@@ -14,21 +15,22 @@ const EditPage = () => {
     phone: "",
   });
 
-  const params = useParams();
-  const { id } = params;
-
-  const fetchUser = async () => {
-    const target = data?.find((item) => Number(item.id) === Number(id));
-
-    if (target) {
-      const { name, username, phone } = target;
-      setDetails({ name, username, phone });
-    }
-  };
+  const { id } = router.query;
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    const fetchUser = async () => {
+      const target = data?.find((item) => Number(item.id) === Number(id));
+
+      if (target) {
+        const { name, username, phone } = target;
+        setDetails({ name, username, phone });
+      }
+    };
+
+    if (id) {
+      fetchUser();
+    }
+  }, [id, data]); // Include id and data in dependencies
 
   const handleChange = (e) => {
     const name = e.target.name;
@@ -41,11 +43,12 @@ const EditPage = () => {
       ...details,
       id,
     });
+    router.back();
   };
 
   const handleCancel = () => {
     router.back();
-  }
+  };
 
   return (
     <div className="container">
@@ -72,7 +75,6 @@ const EditPage = () => {
           />
           <input
             name="phone"
-            // type="number"
             type="text"
             placeholder="phone"
             onChange={handleChange}
@@ -92,5 +94,31 @@ const EditPage = () => {
     </div>
   );
 };
+
+export async function getStaticPaths() {
+  // Replace with actual data fetching logic
+  const data = await fetchData(); // Example function to fetch data
+
+  const paths = data.map((item) => ({
+    params: { id: String(item.id) },
+  }));
+
+  return {
+    paths,
+    fallback: false, // or 'blocking' if you use fallback methods
+  };
+}
+
+export async function getStaticProps({ params }) {
+  // Fetch data for the specific id
+  const data = await fetchData(); // Replace with actual data fetching function
+  const target = data.find((item) => String(item.id) === params.id);
+
+  return {
+    props: {
+      initialData: target || null,
+    },
+  };
+}
 
 export default EditPage;
