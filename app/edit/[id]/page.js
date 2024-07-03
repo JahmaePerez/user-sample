@@ -1,7 +1,8 @@
-"use client";
+// pages/edit/[id].js
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { fetchData } from "../../utils/data"; // Replace with your actual data fetching function
 import { UseDataContext } from "../../context/data";
 
 const EditPage = ({ initialData }) => {
@@ -94,8 +95,7 @@ const EditPage = ({ initialData }) => {
 };
 
 export async function getStaticPaths() {
-  // Replace with actual data fetching logic
-  const data = await fetchData(); // Example function to fetch data
+  const data = await fetchData(); // Replace with your actual data fetching function
 
   const paths = data.map((item) => ({
     params: { id: String(item.id) },
