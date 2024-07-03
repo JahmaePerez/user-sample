@@ -37,7 +37,7 @@ const DataComponent = ({ children }) => {
       setData(newData);
       router.push("/");
     },
-    [data, router] 
+    [data]
   );
 
   const handleDel = useCallback(

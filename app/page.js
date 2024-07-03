@@ -1,27 +1,27 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { UseDataContext } from "./context/data";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 
-const Page = () => {
+const page = () => {
   const router = useRouter();
   const { fillData, data, handleDel, handleAdd } = UseDataContext();
 
-  const fetchUser = useCallback(async () => {
+  const fetchUser = async () => {
     const response = await axios("https://jsonplaceholder.typicode.com/users");
     const { data: responseData } = response;
     fillData(responseData);
-  }, [fillData]);
+  };
 
   useEffect(() => {
     if (data?.length === 0) {
       fetchUser();
     }
-  }, [data?.length, fetchUser]);
+  }, []);
 
   const handleEdit = (id) => {
     router.push(`/edit/${id}`);
@@ -77,4 +77,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default page;

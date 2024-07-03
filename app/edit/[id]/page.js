@@ -1,12 +1,11 @@
 "use client";
-// pages/edit/[id].js
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { fetchData } from "../../utils/data"; // Adjust path as per your project structure
+import { useParams } from "next/navigation";
 import { UseDataContext } from "../../context/data";
+import { useRouter } from "next/navigation";
 
-const EditPage = ({ initialData }) => {
+const EditPage = () => {
   const router = useRouter();
   const { data, handleSubmitEdit } = UseDataContext();
   const [details, setDetails] = useState({
@@ -15,22 +14,21 @@ const EditPage = ({ initialData }) => {
     phone: "",
   });
 
-  const { id } = router.query;
+  const params = useParams();
+  const { id } = params;
+
+  const fetchUser = async () => {
+    const target = data?.find((item) => Number(item.id) === Number(id));
+
+    if (target) {
+      const { name, username, phone } = target;
+      setDetails({ name, username, phone });
+    }
+  };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const target = data?.find((item) => Number(item.id) === Number(id));
-
-      if (target) {
-        const { name, username, phone } = target;
-        setDetails({ name, username, phone });
-      }
-    };
-
-    if (id) {
-      fetchUser();
-    }
-  }, [id, data]); // Include id and data in dependencies
+    fetchUser();
+  }, []);
 
   const handleChange = (e) => {
     const name = e.target.name;
@@ -43,7 +41,6 @@ const EditPage = ({ initialData }) => {
       ...details,
       id,
     });
-    router.back();
   };
 
   const handleCancel = () => {
@@ -75,6 +72,7 @@ const EditPage = ({ initialData }) => {
           />
           <input
             name="phone"
+            // type="number"
             type="text"
             placeholder="phone"
             onChange={handleChange}
