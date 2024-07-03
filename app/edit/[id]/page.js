@@ -28,7 +28,7 @@ const EditPage = () => {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  },);
 
   const handleChange = (e) => {
     const name = e.target.name;

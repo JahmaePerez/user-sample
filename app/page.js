@@ -21,7 +21,7 @@ const page = () => {
     if (data?.length === 0) {
       fetchUser();
     }
-  }, []);
+  }, );
 
   const handleEdit = (id) => {
     router.push(`/edit/${id}`);
