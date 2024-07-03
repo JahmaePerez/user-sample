@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { fetchData } from "../../utils/data"; 
+import { fetchData } from "../../utils/data"; // Adjust path as per your project structure
 import { UseDataContext } from "../../context/data";
 
 const EditPage = ({ initialData }) => {
@@ -94,31 +94,5 @@ const EditPage = ({ initialData }) => {
     </div>
   );
 };
-
-export async function getStaticPaths() {
-  // Replace with actual data fetching logic
-  const data = await fetchData(); // Example function to fetch data
-
-  const paths = data.map((item) => ({
-    params: { id: String(item.id) },
-  }));
-
-  return {
-    paths,
-    fallback: false, // or 'blocking' if you use fallback methods
-  };
-}
-
-export async function getStaticProps({ params }) {
-  // Fetch data for the specific id
-  const data = await fetchData(); // Replace with actual data fetching function
-  const target = data.find((item) => String(item.id) === params.id);
-
-  return {
-    props: {
-      initialData: target || null,
-    },
-  };
-}
 
 export default EditPage;
