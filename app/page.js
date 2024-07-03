@@ -1,110 +1,80 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { UseDataContext } from "../../context/data";
+import React, { useEffect, useCallback } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { UseDataContext } from "./context/data";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 
-const EditPage = ({ initialData }) => {
+const Page = () => {
   const router = useRouter();
-  const { data, handleSubmitEdit } = UseDataContext();
-  const [details, setDetails] = useState({
-    name: "",
-    username: "",
-    phone: "",
-  });
+  const { fillData, data, handleDel, handleAdd } = UseDataContext();
 
-  const { id } = router.query;
+  const fetchUser = useCallback(async () => {
+    const response = await axios("https://jsonplaceholder.typicode.com/users");
+    const { data: responseData } = response;
+    fillData(responseData);
+  }, [fillData]);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const target = data?.find((item) => Number(item.id) === Number(id));
-
-      if (target) {
-        const { name, username, phone } = target;
-        setDetails({ name, username, phone });
-      }
-    };
-
-    if (id) {
+    if (data?.length === 0) {
       fetchUser();
     }
-  }, [id, data]); // Include id and data in dependencies
+  }, [data?.length, fetchUser]);
 
-  const handleChange = (e) => {
-    const name = e.target.name;
-    const val = e.target.value;
-    setDetails({ ...details, [name]: val });
+  const handleEdit = (id) => {
+    router.push(`/edit/${id}`);
   };
 
-  const handleSubmitEditFunc = () => {
-    handleSubmitEdit({
-      ...details,
-      id,
-    });
-    router.back();
-  };
-
-  const handleCancel = () => {
-    router.back();
+  const handleAddUser = () => {
+    const newUser = {
+      id: data.length + 1,
+      name: `New User ${data.length + 1}`,
+      username: `newuser${data.length + 1}`,
+      phone: "000-000-0000",
+    };
+    handleAdd(newUser);
   };
 
   return (
     <div className="container">
-      {details && (
-        <div>
-          <div className="header">
-            <h1>Edit User</h1>
-          </div>
-          <input
-            name="name"
-            type="text"
-            placeholder="name"
-            onChange={handleChange}
-            value={details?.name}
-            className="input-field"
-          />
-          <input
-            name="username"
-            type="text"
-            placeholder="username"
-            onChange={handleChange}
-            value={details?.username}
-            className="input-field"
-          />
-          <input
-            name="phone"
-            type="text"
-            placeholder="phone"
-            onChange={handleChange}
-            value={details?.phone}
-            className="input-field"
-          />
-          <div className="subcan">
-            <button className="submit" onClick={handleSubmitEditFunc}>
-              Submit
-            </button>
-            <button className="cancel" onClick={handleCancel}>
-              Cancel
-            </button>
-          </div>
+      <div className="header">
+        <h1>Handle Users</h1>
+      </div>
+      {data?.length !== 0 &&
+        data?.map((item) => {
+          const { name, phone, id } = item;
+
+          return (
+            <div key={item?.id} className="user-card">
+              <div>
+                <p>
+                  <strong>{name}</strong>
+                </p>
+                <pre>{phone}</pre>
+              </div>
+              <div className="buttons">
+                <button className="edit" onClick={() => handleEdit(id)}>
+                  Edit
+                </button>
+                <button className="delete" onClick={() => handleDel(id)}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      {!data?.length && (
+        <div className="warning">
+          <FontAwesomeIcon icon={faExclamationTriangle} /> No more data!!!
         </div>
       )}
+      <button className="add-user" onClick={handleAddUser}>
+        Add Another User
+      </button>
     </div>
   );
 };
 
-export async function getStaticPaths() {
-  // Replace with actual data fetching logic
-  const data = await fetchData(); // Example function to fetch data
-
-  const paths = data.map((item) => ({
-    params: { id: String(item.id) },
-  }));
-
-  return {
-    paths,
-    fallback: false, // or 'blocking' if you use fallback methods
-  };
-}
-
-export default EditPage;
+export default Page;
